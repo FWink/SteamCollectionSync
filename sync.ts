@@ -3,14 +3,23 @@ class CollectionSync {
     private targetCollectionId: string;
     private sourceCollectionIds: string[];
 
+    private options?: SyncOptions;
+
     private sourceCollectionsRequested: string[] = [];
 
-    public constructor(targetCollectionId: string, sourceCollectionIds: string[]) {
+    public constructor(targetCollectionId: string, sourceCollectionIds: string[], options?: SyncOptions) {
         this.targetCollectionId = targetCollectionId;
         this.sourceCollectionIds = sourceCollectionIds;
+        this.options = options;
     }
 
     public sync(): Promise<any> {
+
+        //step 0: do some checks
+        if(!(this.sourceCollectionIds && this.sourceCollectionIds.length > 0) && !this.options?.clear) {
+            return Promise.reject("Passed an empty source array: aborting instead of clearing the target collection. Pass options.clear if you meant to do that.")
+        }
+
         //step 1: fetch
         let itemsTarget: PublishedFileDetails[];
         let itemsSource: PublishedFileDetails[];
@@ -28,14 +37,29 @@ class CollectionSync {
 
             //step 3: modify
             for(let diff of diffs) {
-                if(diff.add)
+                if(diff.add) {
+                    this.log("Adding item to target collection", diff.item.publishedfileid);
                     promisesModify.push(this.addToCollection(this.targetCollectionId, diff.item.publishedfileid));
-                else
+                }
+                else if(!this.options?.copyOnly) {
+                    this.log("Removing item from target collection", diff.item.publishedfileid);
                     promisesModify.push(this.removeFromCollection(this.targetCollectionId, diff.item.publishedfileid));
+                }
             }
 
-            return Promise.all(promisesModify);
+            return Promise.all(promisesModify).then(() => {
+                this.log("Done");
+            });
         });
+    }
+
+    /**
+     * Logs a debug/info message.
+     * @param msg 
+     * @param extra 
+     */
+    protected log(msg: string, ...extra: any[]) {
+        console.log("CollectionSync: " + msg, ...extra);
     }
 
     //#region Modify Collection
@@ -140,7 +164,7 @@ class CollectionSync {
             if(!contained) {
                 diff.push({
                     item: item1,
-                    add: false
+                    add: add
                 });
             }
         }
@@ -196,7 +220,7 @@ class CollectionSync {
             for(let collection of result.response.collectiondetails) {
 
                 if(collection.result != 1) {
-                    throw new Error(`GetCollectionDetails returned status '${result.response.result}' for collection: ${collection.publishedfileid}`)
+                    throw new Error(`GetCollectionDetails returned status '${collection.result}' for collection: ${collection.publishedfileid}. Are your source collections public?`)
                 }
 
                 for(let child of collection.children) {
@@ -362,4 +386,16 @@ interface ItemDiff {
 
 interface RemoveChildResult {
     success: number
+}
+
+interface SyncOptions {
+    /**
+     * If true no items are removed from the target collection.
+     */
+    copyOnly?: boolean,
+    /**
+     * Allows you to clear your target collection by passing an empty source array.
+     * This is to prevent an easy mistake.
+     */
+    clear?: boolean
 }
