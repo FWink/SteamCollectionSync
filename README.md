@@ -2,14 +2,14 @@
 Synchronizes changes from multiple source workshop collections into one target collection (recursively).
 
 # Usage
-Transpile the code and copy the content of the output file bin/sync.js into a browser console (F12). As the script needs to access your personal Steam account currently you will have to login at https://steamcommunity.com and execute the script there. Otherwise the script can't access your session cookies and can't authenticate.
+Grab the latest release or transpile the code yourself if you don't trust strangers on the internet. Either way copy the content of the output file sync.js into a browser console (F12). As the script needs to access your personal Steam account currently you will have to login at https://steamcommunity.com and execute the script there. Otherwise the script can't access your session cookies and can't authenticate.
 
-Call the sync method with your parameters:
+Call the sync method with your parameters. You will find a stub at the bottom of the file:
 ```
 new CollectionSync("Target Collection ID", ["Source Collection ID 1", "Source Collection ID 2"]).sync();
 ```
 
-You find the ID of your collections in the browser's address bar. For example:
+You can find the ID of your collections in the browser's address bar. For example:
 > https://steamcommunity.com/sharedfiles/filedetails/?id=1672014264
 
 ## Extras

@@ -399,3 +399,7 @@ interface SyncOptions {
      */
     clear?: boolean
 }
+
+
+//TODO: add your collection IDs here
+new CollectionSync("Target Collection ID", ["Source Collection ID 1", "Source Collection ID 2"]).sync();
