@@ -1,8 +1,6 @@
 # SteamCollectionSync
 Synchronizes changes from multiple source workshop collections into one target collection (recursively).
 
-# Status: Work in progress
-
 # Usage
 Transpile the code and copy the content of the output file bin/sync.js into a browser console (F12). As the script needs to access your personal Steam account currently you will have to login at https://steamcommunity.com and execute the script there. Otherwise the script can't access your session cookies and can't authenticate.
 
@@ -13,6 +11,22 @@ new CollectionSync("Target Collection ID", ["Source Collection ID 1", "Source Co
 
 You find the ID of your collections in the browser's address bar. For example:
 > https://steamcommunity.com/sharedfiles/filedetails/?id=1672014264
+
+## Extras
+
+Instead of syncing (adding __and__ deleting items) there are two further things we can do that come along naturally. They are controlled via the optional "options" constructor parameter:
+
+```
+new CollectionSync("Target Collection ID", ["Source Collection ID 1", "Source Collection ID 2"], {
+
+  //no items are deleted from the target collection when true is passed here
+  copyOnly: true,
+  
+  //pass true along with an empty source array to clear all items from the target collection
+  clear: true
+  
+}).sync();
+```
 
 # Why?
 
